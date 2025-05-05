@@ -1,0 +1,49 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Listar Placas</title>
+</head>
+<body>
+    <h1>Lista de Placas</h1>
+    <ul id="listaPlacas"></ul>
+    <button onclick="voltar()">Ant</button>
+    <button onclick="avancar()" id="btnProx">Próx</button>
+
+    <script>
+        let inicio = 0;
+        const limite = 5;
+
+        function carregarPlacas() {
+            fetch(`/listar?inicio=${inicio}&limite=${limite}`)
+                .then(res => res.json())
+                .then(data => {
+                    const lista = document.getElementById("listaPlacas");
+                    lista.innerHTML = "";
+
+                    data.dados.forEach(placa => {
+                        const li = document.createElement("li");
+                        li.textContent = placa;
+                        lista.appendChild(li);
+                    });
+
+                    const botaoProx = document.getElementById("btnProx");
+                    botaoProx.disabled = !data.proximo;
+                });
+        }
+
+        function avancar() {
+            inicio += limite;
+            carregarPlacas();
+        }
+
+        function voltar() {
+            inicio = Math.max(0, inicio - limite);
+            carregarPlacas();
+        }
+
+        window.onload = carregarPlacas;
+    </script>
+</body>
+</html>
