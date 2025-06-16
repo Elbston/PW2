@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title><%= title %></title>
+    <link rel='stylesheet' href='/stylesheets/style.css' />
+  </head>
+  <body>
+    <form action="/" method="get" enctype="multipart/form-data">
+      <label for="">Matricula</label>
+      <input type="text" required value="<%= (user_data !== undefined)?user_data.matricula:'' %>" name="matricula"> <br>
+      <label for="">Nome</label>
+      <input type="text" required value="<%= (user_data !== undefined)?user_data.name:'' %>" name="name"> <br>
+      <label for="">CEP</label>
+      <input type="text" required value="<%= (data !== undefined)?data.cep:'' %>" name="cep"> <br>
+      <label for="">Address</label>
+      <input type="text" value="<%= (data !== undefined)?data.logradouro:'' %>" name="address"> <br>
+      <button type="submit">OK</button>
+    </form>
+  </body>
+</html>

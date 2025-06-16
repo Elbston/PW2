@@ -1,0 +1,173 @@
+<!--
+problemas:
+
+1) eu nao gosto de javascript
+2) quando chega nos ultimos 5 veiculos, nao tem um botao de voltar
+-->
+
+<html>
+
+<head>
+    <title>Pagina</title>
+    <meta charset="UTF-8">
+</head>
+
+<body>
+    <div id="teste1"></div>
+    <input type="button" onclick="location.href='adicionar.html'" value="Novo Veículo">
+    <div id="tabela_veiculos"></div>
+</body>
+<script>
+
+    var lista = [];
+    var lista_pos = 0;
+
+    var pg_atual = 1;
+    var qt_itens = 5;
+
+    async function pegaDados() {
+        const response = await fetch('https://mauricio.inf.br/p6/api/list/');
+        const names = await response.json();
+
+        console.log(names.veiculos);
+        lista = names.veiculos;
+        //document.getElementById("teste").value = lista[0].placa;
+    }
+
+    pegaDados();
+
+    function gerarTabela() {
+
+        // Limpar a tela
+        document.getElementById('tabela_veiculos').innerHTML = '';
+
+        //Define a tabela
+        var tabela = "<table style='width: 100%'>";
+        tabela = tabela + `<thead><tr><th style='text-align: center;'>Placas - Página ${pg_atual} </th><th style='text-align: center;'>&nbsp;</th></tr></thead>`;
+
+        for (i = (pg_atual - 1) * qt_itens; i < (pg_atual * qt_itens); i++) {
+            if (lista[i] !== undefined) {
+                tabela = tabela + "<tr style=''>";
+                tabela = tabela + "<td style='border: 1px solid #ddd;'>" + lista[i].placa + "</td>";
+                tabela = tabela + "<td style='border: 1px solid #ddd; text-align: center;'><a href='#' onclick=\"apagar('" + lista[i].placa + "')\">x</a></td>";
+                tabela = tabela + "</tr>";
+            }
+
+        }
+        tabela = tabela + "</table>";
+
+
+        // se eu tenho 10 itens, entao mostraremos 2 paginas. como?
+        // 10 / 5 = 2.
+
+        //quem é o 5? a quantidade de elementos por pagina
+
+        // e se 5 não divide a quantidade de itens?
+        // ex: se itens = 12
+
+        // precisaremos de 3 paginas. como?
+        // 12 / 5 = 2,4. Note que 2,4 é maior que 2, e o proximo inteiro mais proximo é 3.
+
+        // concluimos que: o botao de anterior so vai ser mostrado até itens/5 = uma certa pagina
+
+
+
+
+        size = (lista.length) // tamanho da lista
+        max_page = size / 5 // qtd maxima de paginas
+
+        if (pg_atual > 1) {
+
+            if (max_page >= pg_atual-1) {
+
+                tabela = tabela + "<input type='button' value='Anterior' onclick='antTab()'>";
+            }
+
+        }
+        if (max_page > pg_atual) {
+
+            tabela = tabela + "<input type='button' value='prox' onclick='proxTab()'>";
+        }
+        tabela = tabela + "<br><br>"
+        tabela = tabela + `Quantidade de Elementos - ${size}`
+
+
+        // Carrega a tabela na página
+        document.getElementById('tabela_veiculos').innerHTML = tabela;
+
+    }
+
+    function exclui(placa) {
+        var ajax = new XMLHttpRequest();
+
+        var form_data = new FormData();
+        form_data.append("placa", placa);
+
+        // Seta tipo de requisição: Post e a URL da API
+        ajax.open("POST", "https://mauricio.inf.br/p6/api/remove/", true);
+        ajax.send(form_data);
+
+        // Cria um evento para receber o retorno.
+        ajax.onreadystatechange = function () {
+
+            // Caso o state seja 4 e o http.status for 200, é porque a requisiçõe deu certo.
+            if (ajax.readyState == 4 && ajax.status == 200) {
+                carregaInformacao()
+            }
+        }
+    }
+
+    function apagar(placa) {
+        conf = confirm("Deseja apagar o veiculo de placa " + placa)
+        if (conf) {
+            exclui(placa)
+            document.getElementById('tabela_veiculos').innerHTML = '';
+            showDialog()
+        }
+    }
+
+    function carregaInformacao() {
+        pegaDados();
+
+        setTimeout(() => {
+            gerarTabela();
+            hideDialog();
+        }, "1000");
+
+    }
+
+    function proxTab() {
+        pg_atual++;
+        gerarTabela();
+    }
+
+    function antTab() {
+        pg_atual--;
+        gerarTabela();
+    }
+
+    carregaInformacao()
+
+</script>
+
+<div class="loader" id="loader" style="display: none;">
+    <div class="">
+        <!--div class="custom-loader"></div!-->
+        <h2>Carregando..</h2>
+        <img src="preload.gif" style="height:50px">
+        <p>Aguarde enquanto recebemos os dados de veículos...</p>
+    </div>
+</div>
+<script>
+    function showDialog() {
+        document.getElementById('loader').style.display = 'block'
+        //document.getElementById('wrapper').style.filter = 'blur(6px)'
+    }
+    function hideDialog() {
+        document.getElementById('loader').style.display = 'none'
+        //document.getElementById('wrapper').style.filter = 'blur(0)'
+    }
+    showDialog()
+</script>
+
+</html>
